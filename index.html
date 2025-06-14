@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Full-Screen Hover Effect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+            position: relative;
+            cursor: default;
+        }
+
+        .image-container {
+            width: 100vw;
+            height: 100vh;
+            perspective: 1500px;
+        }
+
+        .image-container img {
+            width: 90%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.15s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="image-container" id="imageContainer">
+        <img src="https://cdn.discordapp.com/attachments/1354922888792117488/1361191147573215322/image.png?ex=67fddb8b&is=67fc8a0b&hm=6f90018efd6bb6bef6acb0c94a7cded0e1e22ccbb00846614477f38cd40dbfd5&" alt="Full-Screen Hover Image" id="image">
+    </div>
+
+    <script>
+        const image = document.getElementById("image");
+
+        // Set your raw text URL here
+        const pastebinUrl = "https://raw.githubusercontent.com/TheRobloxBaconExploits/bootstrapperfiles/refs/heads/main/PlutoInfo";
+
+        // The variable name to extract
+        const variableName = "InteractiveImage";
+
+        async function loadImageFromPastebin() {
+            try {
+                const response = await fetch(pastebinUrl);
+                if (!response.ok) throw new Error("Failed to fetch raw text.");
+                const text = await response.text();
+
+                // Extract the value for InteractiveImage = "..."
+                const regex = new RegExp(variableName + '\\s*=\\s*"([^"]+)"');
+                const match = text.match(regex);
+
+                if (match && match[1]) {
+                    image.src = match[1];
+                } else {
+                    alert(`No value found for ${variableName} in the raw text.`);
+                }
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        // Load image on page load
+        loadImageFromPastebin();
+
+        image.addEventListener("mousemove", (e) => {
+            const rect = image.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const width = rect.width;
+            const height = rect.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            let rotateX = 0;
+            let rotateY = 0;
+            let scale = 1;
+
+            const distanceToCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+
+            if (distanceToCenter < width / 5) {
+                scale = 1.10;
+            } else {
+                const verticalTilt = ((y - centerY) / centerY) * 10;
+                const horizontalTilt = ((x - centerX) / centerX) * -10;
+
+                rotateX = verticalTilt;
+                rotateY = horizontalTilt;
+            }
+
+            image.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`;
+        });
+
+        image.addEventListener("mouseleave", () => {
+            image.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
+        });
+    </script>
+
+</body>
+</html>
